@@ -17,6 +17,7 @@ import Divider from "@mui/material/Divider";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2";
+import Link from "@mui/material/Link";
 
 interface Note {
   location: string;
@@ -175,7 +176,13 @@ export default function Home() {
       >
         <Toolbar>
           <Breadcrumbs aria-label="breadcrumb">
-            <span color="inherit">Birds</span>
+            <Link
+              color="inherit"
+              underline="hover"
+              onClick={() => setSelectedBird(undefined)}
+            >
+              Birds
+            </Link>
             {selectedBird && (
               <span color="inherit">{selectedBird.nameEnglish}</span>
             )}

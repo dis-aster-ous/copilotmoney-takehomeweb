@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
-import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
-import Image from 'next/image';
-import { useEffect, useState } from 'react'
+import { initializeApp } from "firebase/app";
+import { getAuth, signInAnonymously } from "firebase/auth";
+import { getFirestore, collection, getDocs } from "firebase/firestore/lite";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD76vQKsxYk19iRzACjT_A9apXAoFEtm7Q",
@@ -18,7 +18,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(firebaseApp);
-const birdsCol = collection(db, 'birds');
+const birdsCol = collection(db, "birds");
 
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
@@ -26,17 +26,19 @@ export default function Home() {
 
   useEffect(() => {
     signInAnonymously(auth).then(() => setIsSignedIn(true));
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (isSignedIn) {
-      getDocs(birdsCol).then(birdsDocs => setBirds(birdsDocs.docs.map(doc => doc.data().name.english)))
+      getDocs(birdsCol).then((birdsDocs) =>
+        setBirds(birdsDocs.docs.map((doc) => doc.data().name.english)),
+      );
     }
-  }, [isSignedIn])
+  }, [isSignedIn]);
 
   return (
     <div>
-      {birds.map(bird => (
+      {birds.map((bird) => (
         <p>{bird}</p>
       ))}
     </div>

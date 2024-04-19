@@ -18,6 +18,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2";
 import Link from "@mui/material/Link";
+import Modal from "@mui/material/Modal";
 
 interface Note {
   location: string;
@@ -125,6 +126,8 @@ export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [birds, setBirds] = useState<Bird[]>([]);
   const [search, setSearch] = useState<string>("");
+  const [shouldShowNoteModal, setShouldShowNoteModal] =
+    useState<boolean>(false);
   const [selectedBird, setSelectedBird] = useState<Bird | undefined>();
 
   useEffect(() => {
@@ -165,6 +168,50 @@ export default function Home() {
 
   return (
     <Box sx={{ display: "flex" }}>
+      <Modal
+        open={shouldShowNoteModal}
+        onClose={() => setShouldShowNoteModal(false)}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            borderRadius: "10px",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="subtitle1">Add a note</Typography>
+          <Divider />
+          <TextField
+            sx={{ marginTop: "16px" }}
+            id="outlined-location"
+            label="Location"
+            placeholder="Where did you spot it?"
+          />
+          <TextField
+            sx={{ margin: "16px 0px" }}
+            id="outlined-note"
+            label="Note"
+            placeholder="Enter your notes here"
+            multiline
+          />
+          <Divider />
+          <Box sx={{ marginTop: "16px" }}>
+            <Button
+              variant="text"
+              onClick={() => setShouldShowNoteModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button sx={{ marginLeft: '8px' }} variant="contained">Add note</Button>
+          </Box>
+        </Box>
+      </Modal>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -187,6 +234,14 @@ export default function Home() {
               <span color="inherit">{selectedBird.nameEnglish}</span>
             )}
           </Breadcrumbs>
+          {selectedBird && (
+            <Button
+              onClick={() => setShouldShowNoteModal(true)}
+              sx={{ marginLeft: "auto" }}
+            >
+              Add Note
+            </Button>
+          )}
         </Toolbar>
         <Toolbar>
           <TextField

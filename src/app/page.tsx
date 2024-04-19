@@ -52,16 +52,18 @@ interface BirdListItemProps {
   nameEnglish: string;
   nameLatin: string;
   imageUrl: string;
+  onClick: () => void;
 }
 
 const BirdListItem = ({
   nameEnglish,
   nameLatin,
   imageUrl,
+  onClick,
 }: BirdListItemProps) => {
   return (
     <Grid xs={3}>
-      <Box>
+      <Box onClick={onClick}>
         <img src={imageUrl} />
         <p>{nameEnglish}</p>
         <p>{nameLatin}</p>
@@ -70,9 +72,59 @@ const BirdListItem = ({
   );
 };
 
+interface BirdDisplayProps {
+  imageFullUrl: string;
+  imageThumbUrl: string;
+  nameSpanish: string;
+  nameLatin: string;
+  notes: Note[];
+}
+
+const BirdDisplay = ({
+  imageFullUrl,
+  imageThumbUrl,
+  nameSpanish,
+  nameLatin,
+  notes,
+}: BirdDisplayProps) => {
+  return (
+    <Box>
+      <img style={{ maxWidth: "300px" }} src={imageFullUrl} />
+      <Typography variant="h6">Notes</Typography>
+      {notes.map((note, i) => (
+        <Box key={i}>
+          <Grid container spacing={3}>
+            <Grid xs={2}>
+              <img src={imageThumbUrl} />
+            </Grid>
+            <Grid xs={6}>
+              <Typography variant="subtitle1">{note.location}</Typography>
+              <Typography variant="subtitle2">{note.note}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+      ))}
+      <Typography variant="h6">In Other Languages</Typography>
+      <Divider />
+      <Grid container spacing={3}>
+        <Grid xs={6}>
+          <Typography variant="subtitle1">Spanish</Typography>
+          <Typography variant="subtitle2">{nameSpanish}</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography variant="subtitle1">Latin</Typography>
+          <Typography variant="subtitle2">{nameLatin}</Typography>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
+
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [birds, setBirds] = useState<Bird[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [selectedBird, setSelectedBird] = useState<Bird | undefined>();
 
   useEffect(() => {
     signInAnonymously(auth).then(() => setIsSignedIn(true));
@@ -99,6 +151,17 @@ export default function Home() {
     }
   }, [isSignedIn]);
 
+  const filterBirds = (birdToFilter: Bird): boolean => {
+    if (!search) return true;
+
+    const searchRegex = new RegExp(search, "i");
+    return (
+      searchRegex.test(birdToFilter.nameEnglish) ||
+      searchRegex.test(birdToFilter.nameSpanish) ||
+      searchRegex.test(birdToFilter.nameLatin)
+    );
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -113,6 +176,9 @@ export default function Home() {
         <Toolbar>
           <Breadcrumbs aria-label="breadcrumb">
             <span color="inherit">Birds</span>
+            {selectedBird && (
+              <span color="inherit">{selectedBird.nameEnglish}</span>
+            )}
           </Breadcrumbs>
         </Toolbar>
         <Toolbar>
@@ -120,6 +186,7 @@ export default function Home() {
             id="outlined-search"
             label="Search for birds"
             type="search"
+            onChange={(e) => setSearch(e.target.value)}
           />
         </Toolbar>
       </AppBar>
@@ -139,23 +206,40 @@ export default function Home() {
           <p>The Birds App</p>
         </Toolbar>
         <Divider />
-        <Button variant="contained" disabled sx={{ margin: "8px 16px" }}>
+        <Button
+          variant="contained"
+          onClick={() => setSelectedBird(undefined)}
+          disabled={!selectedBird}
+          sx={{ margin: "8px 16px" }}
+        >
           Home
         </Button>
       </Drawer>
       <Box sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Toolbar />
-        <Grid container spacing={3}>
-          {birds.map((bird, i) => (
-            <BirdListItem
-              key={i}
-              nameEnglish={bird.nameEnglish}
-              nameLatin={bird.nameLatin}
-              imageUrl={bird.imageThumbUrl}
-            />
-          ))}
-        </Grid>
+        {!selectedBird && (
+          <Grid container spacing={3}>
+            {birds.filter(filterBirds).map((bird, i) => (
+              <BirdListItem
+                key={i}
+                nameEnglish={bird.nameEnglish}
+                nameLatin={bird.nameLatin}
+                imageUrl={bird.imageThumbUrl}
+                onClick={() => setSelectedBird(bird)}
+              />
+            ))}
+          </Grid>
+        )}
+        {selectedBird && (
+          <BirdDisplay
+            imageFullUrl={selectedBird.imageFullUrl}
+            imageThumbUrl={selectedBird.imageThumbUrl}
+            nameSpanish={selectedBird.nameSpanish}
+            nameLatin={selectedBird.nameLatin}
+            notes={selectedBird.notes}
+          />
+        )}
       </Box>
     </Box>
   );

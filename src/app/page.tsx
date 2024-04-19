@@ -16,6 +16,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Grid from "@mui/material/Unstable_Grid2";
 
 interface Note {
   location: string;
@@ -59,11 +60,13 @@ const BirdListItem = ({
   imageUrl,
 }: BirdListItemProps) => {
   return (
-    <Box>
-      <img src={imageUrl} />
-      <p>{nameEnglish}</p>
-      <p>{nameLatin}</p>
-    </Box>
+    <Grid xs={3}>
+      <Box>
+        <img src={imageUrl} />
+        <p>{nameEnglish}</p>
+        <p>{nameLatin}</p>
+      </Box>
+    </Grid>
   );
 };
 
@@ -143,14 +146,16 @@ export default function Home() {
       <Box sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Toolbar />
-        {birds.map((bird, i) => (
-          <BirdListItem
-            key={i}
-            nameEnglish={bird.nameEnglish}
-            nameLatin={bird.nameLatin}
-            imageUrl={bird.imageThumbUrl}
-          />
-        ))}
+        <Grid container spacing={3}>
+          {birds.map((bird, i) => (
+            <BirdListItem
+              key={i}
+              nameEnglish={bird.nameEnglish}
+              nameLatin={bird.nameLatin}
+              imageUrl={bird.imageThumbUrl}
+            />
+          ))}
+        </Grid>
       </Box>
     </Box>
   );

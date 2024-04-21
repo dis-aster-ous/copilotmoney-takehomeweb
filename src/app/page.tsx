@@ -73,9 +73,6 @@ const fetchWatermarkedImage = async (imgUrl: string): Promise<string> => {
   const originalImageSize = originalImage.size;
   const originalImageBody = await originalImage.text();
 
-  console.log(originalImageSize);
-  console.log(originalImageBody);
-
   const watermarkedImageResponse = await fetch(
     "https://us-central1-copilot-take-home.cloudfunctions.net/watermark",
     {
@@ -87,7 +84,9 @@ const fetchWatermarkedImage = async (imgUrl: string): Promise<string> => {
       body: originalImageBody,
     },
   );
-  return "";
+
+  const watermarkedImage = await watermarkedImageResponse.blob()
+  return watermarkedImage.text()
 };
 
 interface WatermarkedImageProps {
@@ -100,9 +99,10 @@ const WatermarkedImage = ({ imgSrc }: WatermarkedImageProps) => {
   >();
 
   useEffect(() => {
-    fetchWatermarkedImage(imgSrc);
+    fetchWatermarkedImage(imgSrc).then(setWatermarkedImage);
   }, []);
 
+  // fallback to original image if watermark fails
   return <img src={watermarkedImage ?? imgSrc} />;
 };
 

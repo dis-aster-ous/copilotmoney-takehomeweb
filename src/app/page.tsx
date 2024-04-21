@@ -2,9 +2,15 @@
 
 import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
-import { getFirestore, collection, getDocs } from "firebase/firestore/lite";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+} from "firebase/firestore/lite";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
@@ -26,12 +32,22 @@ interface Note {
 }
 
 interface Bird {
+  uid: string;
   nameEnglish: string;
   nameSpanish: string;
   nameLatin: string;
   imageThumbUrl: string;
   imageFullUrl: string;
   notes: Note[];
+}
+
+interface NoteFormElements extends HTMLFormControlsCollection {
+  location: HTMLInputElement;
+  note: HTMLTextAreaElement;
+}
+
+interface NoteForm extends HTMLFormElement {
+  readonly elements: NoteFormElements;
 }
 
 const firebaseConfig = {
@@ -141,12 +157,13 @@ export default function Home() {
           const data = doc.data();
 
           return {
+            uid: data.uid,
             nameEnglish: data.name.english,
             nameSpanish: data.name.spanish,
             nameLatin: data.name.latin,
             imageThumbUrl: data.images.thumb,
             imageFullUrl: data.images.full,
-            notes: [],
+            notes: data.notes,
           };
         });
 
@@ -163,6 +180,28 @@ export default function Home() {
       searchRegex.test(birdToFilter.nameEnglish) ||
       searchRegex.test(birdToFilter.nameSpanish) ||
       searchRegex.test(birdToFilter.nameLatin)
+    );
+  };
+
+  const handleNoteSubmission = async (
+    e: FormEvent<NoteForm>,
+  ): Promise<void> => {
+    e.preventDefault();
+    if (!selectedBird) return;
+
+    const birdDocRef = doc(db, "birds", selectedBird.uid);
+    await setDoc(
+      birdDocRef,
+      {
+        notes: [
+          ...selectedBird.notes,
+          {
+            location: e.currentTarget.elements.location.value,
+            note: e.currentTarget.elements.note.value,
+          },
+        ],
+      },
+      { merge: true },
     );
   };
 
@@ -187,29 +226,38 @@ export default function Home() {
         >
           <Typography variant="subtitle1">Add a note</Typography>
           <Divider />
-          <TextField
-            sx={{ marginTop: "16px" }}
-            id="outlined-location"
-            label="Location"
-            placeholder="Where did you spot it?"
-          />
-          <TextField
-            sx={{ margin: "16px 0px" }}
-            id="outlined-note"
-            label="Note"
-            placeholder="Enter your notes here"
-            multiline
-          />
-          <Divider />
-          <Box sx={{ marginTop: "16px" }}>
-            <Button
-              variant="text"
-              onClick={() => setShouldShowNoteModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button sx={{ marginLeft: '8px' }} variant="contained">Add note</Button>
-          </Box>
+          <form action="" onSubmit={handleNoteSubmission}>
+            <TextField
+              sx={{ marginTop: "16px" }}
+              name="location"
+              label="Location"
+              placeholder="Where did you spot it?"
+            />
+            <TextField
+              sx={{ margin: "16px 0px" }}
+              name="note"
+              label="Note"
+              placeholder="Enter your notes here"
+              multiline
+            />
+            <Divider />
+            <Box sx={{ marginTop: "16px" }}>
+              <Button
+                variant="text"
+                type="reset"
+                onClick={() => setShouldShowNoteModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                sx={{ marginLeft: "8px" }}
+                variant="contained"
+                type="submit"
+              >
+                Add note
+              </Button>
+            </Box>
+          </form>
         </Box>
       </Modal>
       <CssBaseline />

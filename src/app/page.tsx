@@ -82,7 +82,7 @@ const fetchWatermarkedImage = async (imgUrl: string): Promise<string> => {
       method: "POST",
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Length": originalImageSize,
+        "Content-Length": originalImageSize.toString(),
       },
       body: originalImageBody,
     },

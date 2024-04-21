@@ -66,6 +66,46 @@ const birdsCol = collection(db, "birds");
 
 const DRAWER_WIDTH = 240;
 
+const fetchWatermarkedImage = async (imgUrl: string): Promise<string> => {
+  const originalImageResponse = await fetch(imgUrl);
+  const originalImage = await originalImageResponse.blob();
+
+  const originalImageSize = originalImage.size;
+  const originalImageBody = await originalImage.text();
+
+  console.log(originalImageSize);
+  console.log(originalImageBody);
+
+  const watermarkedImageResponse = await fetch(
+    "https://us-central1-copilot-take-home.cloudfunctions.net/watermark",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Length": originalImageSize,
+      },
+      body: originalImageBody,
+    },
+  );
+  return "";
+};
+
+interface WatermarkedImageProps {
+  imgSrc: string;
+}
+
+const WatermarkedImage = ({ imgSrc }: WatermarkedImageProps) => {
+  const [watermarkedImage, setWatermarkedImage] = useState<
+    string | undefined
+  >();
+
+  useEffect(() => {
+    fetchWatermarkedImage(imgSrc);
+  }, []);
+
+  return <img src={watermarkedImage ?? imgSrc} />;
+};
+
 interface BirdListItemProps {
   nameEnglish: string;
   nameLatin: string;
@@ -82,7 +122,7 @@ const BirdListItem = ({
   return (
     <Grid xs={3}>
       <Box onClick={onClick}>
-        <img src={imageUrl} />
+        <WatermarkedImage imgSrc={imageUrl} />
         <p>{nameEnglish}</p>
         <p>{nameLatin}</p>
       </Box>

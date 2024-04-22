@@ -24,6 +24,7 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2";
 import Link from "@mui/material/Link";
 import Modal from "@mui/material/Modal";
+import BirdListItem from "./BirdListItem";
 import WatermarkedImage from "./WatermarkedImage";
 
 interface Note {
@@ -67,30 +68,6 @@ const db = getFirestore(firebaseApp);
 const birdsCol = collection(db, "birds");
 
 const DRAWER_WIDTH = 240;
-
-interface BirdListItemProps {
-  nameEnglish: string;
-  nameLatin: string;
-  imageUrl: string;
-  onClick: () => void;
-}
-
-const BirdListItem = ({
-  nameEnglish,
-  nameLatin,
-  imageUrl,
-  onClick,
-}: BirdListItemProps) => {
-  return (
-    <Grid xs={3}>
-      <Box onClick={onClick}>
-        <WatermarkedImage src={imageUrl} />
-        <p>{nameEnglish}</p>
-        <p>{nameLatin}</p>
-      </Box>
-    </Grid>
-  );
-};
 
 interface BirdDisplayProps {
   imageFullUrl: string;

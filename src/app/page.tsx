@@ -55,7 +55,7 @@ interface NoteForm extends HTMLFormElement {
 }
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD76vQKsxYk19iRzACjT_A9apXAoFEtm7Q",
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "copilot-take-home-fc0d7.firebaseapp.com",
   projectId: "copilot-take-home-fc0d7",
   storageBucket: "copilot-take-home-fc0d7.appspot.com",

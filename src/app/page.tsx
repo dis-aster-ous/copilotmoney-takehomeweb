@@ -24,6 +24,7 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2";
 import Link from "@mui/material/Link";
 import Modal from "@mui/material/Modal";
+import WatermarkedImage from "./WatermarkedImage";
 
 interface Note {
   location: string;
@@ -66,47 +67,6 @@ const db = getFirestore(firebaseApp);
 const birdsCol = collection(db, "birds");
 
 const DRAWER_WIDTH = 240;
-
-const fetchWatermarkedImage = async (imgUrl: string): Promise<string> => {
-  const originalImageResponse = await fetch(imgUrl);
-  const originalImage = await originalImageResponse.blob();
-
-  const originalImageSize = originalImage.size;
-  const originalImageBody = await originalImage.text();
-
-  const watermarkedImageResponse = await fetch(
-    "https://us-central1-copilot-take-home.cloudfunctions.net/watermark",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/octet-stream",
-        "Content-Length": originalImageSize.toString(),
-      },
-      body: originalImageBody,
-    },
-  );
-
-  const watermarkedImage = await watermarkedImageResponse.blob();
-  return watermarkedImage.text();
-};
-
-interface WatermarkedImageProps {
-  src: string;
-  style?: CSSProperties;
-}
-
-const WatermarkedImage = ({ src, style }: WatermarkedImageProps) => {
-  const [watermarkedImage, setWatermarkedImage] = useState<
-    string | undefined
-  >();
-
-  useEffect(() => {
-    fetchWatermarkedImage(src as string).then(setWatermarkedImage);
-  }, []);
-
-  // fallback to original image if watermark fails
-  return <img style={style} src={watermarkedImage ?? src} />;
-};
 
 interface BirdListItemProps {
   nameEnglish: string;
@@ -157,7 +117,10 @@ const BirdDisplay = ({
           <Box key={i}>
             <Grid container spacing={3}>
               <Grid xs={2}>
-                <WatermarkedImage style={{ maxWidth: "100px" }} src={imageThumbUrl} />
+                <WatermarkedImage
+                  style={{ maxWidth: "100px" }}
+                  src={imageThumbUrl}
+                />
               </Grid>
               <Grid xs={6}>
                 <Typography variant="subtitle1">{note.location}</Typography>

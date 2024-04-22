@@ -29,10 +29,12 @@ import Modal from "@mui/material/Modal";
 interface Note {
   location: string;
   note: string;
+  timestamp: number;
 }
 
 interface Bird {
   uid: string;
+  sort: number;
   nameEnglish: string;
   nameSpanish: string;
   nameLatin: string;
@@ -85,8 +87,8 @@ const fetchWatermarkedImage = async (imgUrl: string): Promise<string> => {
     },
   );
 
-  const watermarkedImage = await watermarkedImageResponse.blob()
-  return watermarkedImage.text()
+  const watermarkedImage = await watermarkedImageResponse.blob();
+  return watermarkedImage.text();
 };
 
 interface WatermarkedImageProps {
@@ -149,7 +151,7 @@ const BirdDisplay = ({
     <Box>
       <img style={{ maxWidth: "300px" }} src={imageFullUrl} />
       <Typography variant="h6">Notes</Typography>
-      {notes.map((note, i) => (
+      {notes.sort((a, b) => b.timestamp - a.timestamp).map((note, i) => (
         <Box key={i}>
           <Grid container spacing={3}>
             <Grid xs={2}>
@@ -198,12 +200,13 @@ export default function Home() {
 
           return {
             uid: data.uid,
+            sort: data.sort,
             nameEnglish: data.name.english,
             nameSpanish: data.name.spanish,
             nameLatin: data.name.latin,
             imageThumbUrl: data.images.thumb,
             imageFullUrl: data.images.full,
-            notes: data.notes,
+            notes: data.notes ?? [],
           };
         });
 
@@ -229,20 +232,30 @@ export default function Home() {
     e.preventDefault();
     if (!selectedBird) return;
 
+    const newNote = {
+      location: e.currentTarget.elements.location.value,
+      note: e.currentTarget.elements.note.value,
+      timestamp: Date.now()
+    };
+
     const birdDocRef = doc(db, "birds", selectedBird.uid);
     await setDoc(
       birdDocRef,
-      {
-        notes: [
-          ...selectedBird.notes,
-          {
-            location: e.currentTarget.elements.location.value,
-            note: e.currentTarget.elements.note.value,
-          },
-        ],
-      },
+      { notes: [...selectedBird.notes, newNote] },
       { merge: true },
     );
+
+    const updatedBird = {
+      ...selectedBird,
+      notes: [...selectedBird.notes, newNote],
+    };
+
+    setSelectedBird(updatedBird);
+    setBirds(
+      birds.filter((b) => b.uid !== updatedBird.uid).concat(updatedBird),
+    );
+
+    setShouldShowNoteModal(false);
   };
 
   return (
@@ -370,7 +383,7 @@ export default function Home() {
         <Toolbar />
         {!selectedBird && (
           <Grid container spacing={3}>
-            {birds.filter(filterBirds).map((bird, i) => (
+            {birds.filter(filterBirds).sort((a, b) => a.sort - b.sort).map((bird, i) => (
               <BirdListItem
                 key={i}
                 nameEnglish={bird.nameEnglish}

@@ -9,6 +9,8 @@ npm ci
 npm run dev # visit http://localhost:3000
 ```
 
+`FIREBASE_API_KEY` must be set in your environment (dotenv has been configured for easy use, simply add it to your `.env` file)
+
 Original README + requirements follow:
 
 -------------

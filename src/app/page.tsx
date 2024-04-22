@@ -24,10 +24,11 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2";
 import Link from "@mui/material/Link";
 import Modal from "@mui/material/Modal";
+import BirdDisplay from "./BirdDisplay";
 import BirdListItem from "./BirdListItem";
 import WatermarkedImage from "./WatermarkedImage";
 
-interface Note {
+export interface Note {
   location: string;
   note: string;
   timestamp: number;
@@ -68,59 +69,6 @@ const db = getFirestore(firebaseApp);
 const birdsCol = collection(db, "birds");
 
 const DRAWER_WIDTH = 240;
-
-interface BirdDisplayProps {
-  imageFullUrl: string;
-  imageThumbUrl: string;
-  nameSpanish: string;
-  nameLatin: string;
-  notes: Note[];
-}
-
-const BirdDisplay = ({
-  imageFullUrl,
-  imageThumbUrl,
-  nameSpanish,
-  nameLatin,
-  notes,
-}: BirdDisplayProps) => {
-  return (
-    <Box>
-      <WatermarkedImage style={{ maxWidth: "300px" }} src={imageFullUrl} />
-      <Typography variant="h6">Notes</Typography>
-      {notes
-        .sort((a, b) => b.timestamp - a.timestamp)
-        .map((note, i) => (
-          <Box key={i}>
-            <Grid container spacing={3}>
-              <Grid xs={2}>
-                <WatermarkedImage
-                  style={{ maxWidth: "100px" }}
-                  src={imageThumbUrl}
-                />
-              </Grid>
-              <Grid xs={6}>
-                <Typography variant="subtitle1">{note.location}</Typography>
-                <Typography variant="subtitle2">{note.note}</Typography>
-              </Grid>
-            </Grid>
-          </Box>
-        ))}
-      <Typography variant="h6">In Other Languages</Typography>
-      <Divider />
-      <Grid container spacing={3}>
-        <Grid xs={6}>
-          <Typography variant="subtitle1">Spanish</Typography>
-          <Typography variant="subtitle2">{nameSpanish}</Typography>
-        </Grid>
-        <Grid xs={6}>
-          <Typography variant="subtitle1">Latin</Typography>
-          <Typography variant="subtitle2">{nameLatin}</Typography>
-        </Grid>
-      </Grid>
-    </Box>
-  );
-};
 
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);

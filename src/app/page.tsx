@@ -9,8 +9,7 @@ import {
   getDocs,
   setDoc,
 } from "firebase/firestore/lite";
-import Image from "next/image";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type CSSProperties } from "react";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
@@ -92,20 +91,21 @@ const fetchWatermarkedImage = async (imgUrl: string): Promise<string> => {
 };
 
 interface WatermarkedImageProps {
-  imgSrc: string;
+  src: string;
+  style?: CSSProperties;
 }
 
-const WatermarkedImage = ({ imgSrc }: WatermarkedImageProps) => {
+const WatermarkedImage = ({ src, style }: WatermarkedImageProps) => {
   const [watermarkedImage, setWatermarkedImage] = useState<
     string | undefined
   >();
 
   useEffect(() => {
-    fetchWatermarkedImage(imgSrc).then(setWatermarkedImage);
+    fetchWatermarkedImage(src as string).then(setWatermarkedImage);
   }, []);
 
   // fallback to original image if watermark fails
-  return <img src={watermarkedImage ?? imgSrc} />;
+  return <img style={style} src={watermarkedImage ?? src} />;
 };
 
 interface BirdListItemProps {
@@ -124,7 +124,7 @@ const BirdListItem = ({
   return (
     <Grid xs={3}>
       <Box onClick={onClick}>
-        <WatermarkedImage imgSrc={imageUrl} />
+        <WatermarkedImage src={imageUrl} />
         <p>{nameEnglish}</p>
         <p>{nameLatin}</p>
       </Box>
@@ -149,21 +149,23 @@ const BirdDisplay = ({
 }: BirdDisplayProps) => {
   return (
     <Box>
-      <img style={{ maxWidth: "300px" }} src={imageFullUrl} />
+      <WatermarkedImage style={{ maxWidth: "300px" }} src={imageFullUrl} />
       <Typography variant="h6">Notes</Typography>
-      {notes.sort((a, b) => b.timestamp - a.timestamp).map((note, i) => (
-        <Box key={i}>
-          <Grid container spacing={3}>
-            <Grid xs={2}>
-              <img src={imageThumbUrl} />
+      {notes
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .map((note, i) => (
+          <Box key={i}>
+            <Grid container spacing={3}>
+              <Grid xs={2}>
+                <WatermarkedImage style={{ maxWidth: "100px" }} src={imageThumbUrl} />
+              </Grid>
+              <Grid xs={6}>
+                <Typography variant="subtitle1">{note.location}</Typography>
+                <Typography variant="subtitle2">{note.note}</Typography>
+              </Grid>
             </Grid>
-            <Grid xs={6}>
-              <Typography variant="subtitle1">{note.location}</Typography>
-              <Typography variant="subtitle2">{note.note}</Typography>
-            </Grid>
-          </Grid>
-        </Box>
-      ))}
+          </Box>
+        ))}
       <Typography variant="h6">In Other Languages</Typography>
       <Divider />
       <Grid container spacing={3}>
@@ -235,7 +237,7 @@ export default function Home() {
     const newNote = {
       location: e.currentTarget.elements.location.value,
       note: e.currentTarget.elements.note.value,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     const birdDocRef = doc(db, "birds", selectedBird.uid);
@@ -383,15 +385,18 @@ export default function Home() {
         <Toolbar />
         {!selectedBird && (
           <Grid container spacing={3}>
-            {birds.filter(filterBirds).sort((a, b) => a.sort - b.sort).map((bird, i) => (
-              <BirdListItem
-                key={i}
-                nameEnglish={bird.nameEnglish}
-                nameLatin={bird.nameLatin}
-                imageUrl={bird.imageThumbUrl}
-                onClick={() => setSelectedBird(bird)}
-              />
-            ))}
+            {birds
+              .filter(filterBirds)
+              .sort((a, b) => a.sort - b.sort)
+              .map((bird, i) => (
+                <BirdListItem
+                  key={i}
+                  nameEnglish={bird.nameEnglish}
+                  nameLatin={bird.nameLatin}
+                  imageUrl={bird.imageThumbUrl}
+                  onClick={() => setSelectedBird(bird)}
+                />
+              ))}
           </Grid>
         )}
         {selectedBird && (

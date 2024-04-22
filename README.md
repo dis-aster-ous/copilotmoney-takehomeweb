@@ -1,4 +1,17 @@
-![CleanShot 2024-04-12 at 15 41 45@2x](https://github.com/copilotmoney/TakeHomeWeb/assets/4545451/1d56db68-e378-4238-bea5-e8585c107dc0)
+<img width="1512" alt="Screenshot 2024-04-21 at 9 14 04 PM" src="https://github.com/dis-aster-ous/copilotmoney-takehomeweb/assets/6699823/7cabb959-c74a-4146-8532-aa2c46d9d47d">
+
+Deployed to https://dis-aster-ous.github.io/copilotmoney-takehomeweb/
+
+# To Run Locally
+```
+nvm use
+npm ci
+npm run dev # visit http://localhost:3000
+```
+
+Original README + requirements follow:
+
+-------------
 
 # Take Home Exercise
 
